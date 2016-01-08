@@ -22,7 +22,7 @@ class OutputBolt(BasicBolt):
 
     def __init__(self):
         """
-        開啟mongodb連線
+        assogn None to member
         """
         super(OutputBolt, self).__init__(script=__file__)
         self.conf = None
@@ -35,6 +35,7 @@ class OutputBolt(BasicBolt):
         Storm calls this function when a task for this component starts up.
         :param conf: topology.yaml內的設定
         :param context:
+        開啟mongodb連線
         """
         log.debug("OutputBolt initialize start")
         self.conf = conf

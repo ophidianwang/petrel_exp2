@@ -22,7 +22,7 @@ class ExpSpout(Spout):
 
     def __init__(self):
         """
-        開啟kafka連線
+        assign None to members
         """
         super(ExpSpout, self).__init__(script=__file__)
         self.conf = None
@@ -35,6 +35,7 @@ class ExpSpout(Spout):
         Storm calls this function when a task for this component starts up.
         :param conf: topology.yaml內的設定
         :param context:
+        開啟kafka連線
         """
         log.debug("ExpSpout initialize start")
         self.conf = conf
