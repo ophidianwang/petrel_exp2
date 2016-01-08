@@ -53,7 +53,7 @@ class GroupBolt(BasicBolt):
                 self.total_uplink[msisdn] += uplink
                 self.total_downlink[msisdn] += downlink
                 self.total_records[msisdn].append(record_time)
-                # log.debug("%s", [msisdn, uplink, downlink, record_time])
+                log.debug("%s", [msisdn, uplink, downlink, record_time])
             except :
                 log.debug("transforming tup values failed: %s", tup)
 
@@ -63,8 +63,11 @@ class GroupBolt(BasicBolt):
         並重新累計
         """
         for msisdn in self.total_uplink:
-            # see if we could pass list in storm tuple
-            storm.emit([msisdn, self.total_uplink[msisdn], self.total_downlink[msisdn, self.total_records[msisdn]]])
+            # see if we could pass list in storm tuple: False, emit members needs to be hashable
+            # so ... merge list to str
+            merged = ",".join(self.total_records[msisdn])
+            log.debug("%s", [msisdn, merged])
+            storm.emit([msisdn, self.total_uplink[msisdn], self.total_downlink[msisdn], merged])
 
         # clear accumulator
         self.total_uplink.clear()

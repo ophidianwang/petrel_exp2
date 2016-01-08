@@ -29,11 +29,6 @@ class OutputBolt(BasicBolt):
         self.client = None
         self.db = None
         self.collection = None
-        """
-        self.client = MongoClient('localhost', 27017)
-        self.db = self.client.exp_db_name
-        self.collection = self.db.exp_col_name
-        """
 
     def initialize(self, conf, context):
         """
@@ -41,11 +36,12 @@ class OutputBolt(BasicBolt):
         :param conf: topology.yaml內的設定
         :param context:
         """
-        log.debug("OutputBolt initialize")
+        log.debug("OutputBolt initialize start")
         self.conf = conf
-        self.client = MongoClient(conf["OutputBolt.initialize.host"], conf["OutputBolt.initialize.port"])
-        self.db = self.client[conf["OutputBolt.initialize.db"]]
-        self.collection = self.db[conf["OutputBolt.initialize.collection"]]
+        self.client = MongoClient(str(conf["OutputBolt.initialize.host"]), int(conf["OutputBolt.initialize.port"]))
+        self.db = self.client[str(conf["OutputBolt.initialize.db"])]
+        self.collection = self.db[str(conf["OutputBolt.initialize.collection"])]
+        log.debug("OutputBolt initialize done")
 
     @classmethod
     def declareOutputFields(self):
@@ -59,18 +55,22 @@ class OutputBolt(BasicBolt):
         將接收到的tuple寫入mongodb
         若為tick tuple, 則log紀錄
         """
+        if self.collection is None:
+            log.debug("self.collection is not ready yet.")
+            return
         if tup.is_tick_tuple():
             log.debug("tuple is tick")
         else:
             """
+            fields = ["msisdn", "total_uplink", "total_downlink", "records"]
+            doc = dict(zip(fields, tup.values))
+            """
+            log.debug("%s", tup.values)
             doc = {"msisdn": tup.values[0],
                    "total_uplink": tup.values[1],
                    "total_downlink": tup.values[2],
-                   "recors": tup.values[3]
+                   "records": tup.values[3].split(",")  # split str to list
                    }
-            """
-            fields = ["msisdn", "total_uplink", "total_downlink", "records"]
-            doc = dict(zip(fields, tup.values))
             object_id = self.collection.insert_one(doc).inserted_id
             log.debug("insert doc: %s, object_id: %s.", doc, object_id)
 

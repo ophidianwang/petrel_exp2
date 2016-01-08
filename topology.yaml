@@ -1,10 +1,12 @@
 nimbus.host: "localhost"
 topology.workers: 1
+
 ExpSpout.initialize.hosts: "127.0.0.1:9092"
 ExpSpout.initialize.topics: "test"
-ExpSpout.initialize.consumer_group: "proto_1"
+ExpSpout.initialize.consumer_group: "proto_0108"
+ExpSpout.initialize.zookeeper: "127.0.0.1:2181"
 ExpSpout.initialize.consumer_timeout_ms: 500
 OutputBolt.initialize.host: "localhost"
 OutputBolt.initialize.port: 27017
-OutputBolt.initialize.db: "exp_db_name"
-OutputBolt.initialize.collection: "exp_col_name"
+OutputBolt.initialize.db: "exp_db_0108"
+OutputBolt.initialize.collection: "exp_col_0108"

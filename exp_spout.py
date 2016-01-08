@@ -8,6 +8,7 @@ Created on Tue Jan 05 11:07:12 2016
 import time
 import logging
 from pykafka import KafkaClient
+from pykafka.exceptions import NoPartitionsForConsumerException
 from petrel import storm
 from petrel.emitter import Spout
 
@@ -28,12 +29,6 @@ class ExpSpout(Spout):
         self.client = None
         self.topic = None
         self.consumer = None
-        """
-        self.client = KafkaClient(hosts="127.0.0.1:9092")
-        self.topic = self.client.topics["test"]
-        self.consumer = self.topic.get_simple_consumer(consumer_group="proto_1",
-                                                       consumer_timeout_ms=500)
-        """
 
     def initialize(self, conf, context):
         """
@@ -41,13 +36,17 @@ class ExpSpout(Spout):
         :param conf: topology.yaml內的設定
         :param context:
         """
-        log.debug("ExpSpout initialize")
+        log.debug("ExpSpout initialize start")
         self.conf = conf
         self.client = KafkaClient(hosts=conf["ExpSpout.initialize.hosts"])
-        self.topic = self.client.topics[conf["ExpSpout.initialize.topics"]]
-        self.consumer = self.topic.get_simple_consumer(consumer_group=conf["ExpSpout.initialize.consumer_group"],
-                                                       consumer_timeout_ms=conf[
-                                                           "ExpSpout.initialize.consumer_timeout_ms"])
+        self.topic = self.client.topics[str(conf["ExpSpout.initialize.topics"])]
+        self.consumer = self.topic.get_balanced_consumer(consumer_group=str(conf["ExpSpout.initialize.consumer_group"]),
+                                                         zookeeper_connect=str(conf["ExpSpout.initialize.zookeeper"]),
+                                                         consumer_timeout_ms=int(conf[
+                                                             "ExpSpout.initialize.consumer_timeout_ms"]),
+                                                         auto_commit_enable=True
+                                                         )
+        log.debug("ExpSpout initialize done")
 
     @classmethod
     def declareOutputFields(cls):
@@ -70,14 +69,16 @@ class ExpSpout(Spout):
         log.debug("ExpSpout.nextTuple()")
         time.sleep(3)  # prototype減速觀察
         cursor = 0
-        for message in self.consumer:
-            if cursor > 10000:  # prototype減量觀察
-                break
-            cursor += 1
-            if message is not None:
-                log.debug("offset: %s \t value: %s", message.offset, message.value)
-                storm.emit([message.value])
-        self.consumer.commit_offsets()
+        try:
+            for message in self.consumer:
+                cursor += 1
+                if message is not None:
+                    log.debug("offset: %s \t value: %s", message.offset, message.value)
+                    storm.emit([message.value])
+                if cursor > 10000:  # prototype減量觀察
+                    break
+        except NoPartitionsForConsumerException:
+            log.debug("NoPartitionsForConsumerException")
 
 
 def run():
