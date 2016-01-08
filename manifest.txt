@@ -1,0 +1,2 @@
+logconfig.ini
+setup.sh
