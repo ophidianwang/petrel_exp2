@@ -8,7 +8,6 @@ Created on Tue Jan 05 11:07:12 2016
 import time
 import logging
 from pykafka import KafkaClient
-from pykafka.exceptions import NoPartitionsForConsumerException
 from petrel import storm
 from petrel.emitter import Spout
 
@@ -78,8 +77,8 @@ class ExpSpout(Spout):
                     storm.emit([message.value])
                 if cursor > 10000:  # prototype減量觀察
                     break
-        except NoPartitionsForConsumerException:
-            log.debug("NoPartitionsForConsumerException")
+        except Exception as inst:
+            log.debug("Exception Type: %s ; Args: %s", type(inst), inst.args)
 
 
 def run():
