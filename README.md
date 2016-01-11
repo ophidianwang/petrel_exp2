@@ -34,4 +34,14 @@ easy_install petrel==0.9.4.0.3
 
 # virtualenv 內其他3rd party 套件
 pymongo  
-pykafka  
+pykafka
+
+---
+
+# Quick Start (on ubuntu vagrant)
+sudo apt-get install python-virtualenv
+virtualenv --always-copy petrel_env
+source petrel_env/bin/activate
+pip install pymongo pykafka
+cd ~/path/to/this/topology
+./run.sh
