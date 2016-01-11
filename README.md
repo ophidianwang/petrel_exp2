@@ -44,4 +44,4 @@ virtualenv --always-copy petrel_env
 source petrel_env/bin/activate
 pip install pymongo pykafka
 cd ~/path/to/this/topology
-./run.sh
+./run.sh  
