@@ -39,9 +39,9 @@ pykafka
 ---
 
 # Quick Start (on ubuntu vagrant)
-sudo apt-get install python-virtualenv
-virtualenv --always-copy petrel_env
-source petrel_env/bin/activate
-pip install pymongo pykafka
-cd ~/path/to/this/topology
+sudo apt-get install python-virtualenv  
+virtualenv --always-copy petrel_env  
+source petrel_env/bin/activate  
+pip install pymongo pykafka  
+cd ~/path/to/this/topology  
 ./run.sh  
