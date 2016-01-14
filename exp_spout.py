@@ -11,7 +11,7 @@ from pykafka import KafkaClient
 from petrel import storm
 from petrel.emitter import Spout
 
-log = logging.getLogger('exp_spout')  # set logger
+log = logging.getLogger('ExpSpout')  # set logger
 
 
 class ExpSpout(Spout):

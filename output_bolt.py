@@ -10,7 +10,7 @@ from pymongo import MongoClient
 from petrel import storm
 from petrel.emitter import BasicBolt
 
-log = logging.getLogger('output_bolt')  # set logger
+log = logging.getLogger('OutputBolt')  # set logger
 
 
 class OutputBolt(BasicBolt):

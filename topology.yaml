@@ -1,5 +1,5 @@
-nimbus.host: "localhost"
-topology.workers: 1
+nimbus.host: "172.28.128.22"
+topology.workers: 3
 
 ExpSpout.initialize.hosts: "127.0.0.1:9092"
 ExpSpout.initialize.topics: "test"

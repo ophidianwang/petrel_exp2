@@ -9,7 +9,7 @@ import logging
 from petrel import storm
 from petrel.emitter import BasicBolt
 
-log = logging.getLogger('split_bolt')  # set logger
+log = logging.getLogger('SplitBolt')  # set logger
 
 
 class SplitBolt(BasicBolt):

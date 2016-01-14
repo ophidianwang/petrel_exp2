@@ -11,7 +11,7 @@ from collections import defaultdict
 from petrel import storm
 from petrel.emitter import BasicBolt
 
-log = logging.getLogger('group_bolt')    # set logger
+log = logging.getLogger('GroupBolt')    # set logger
 
 
 class GroupBolt(BasicBolt):
