@@ -1,1 +1,1 @@
-petrel submit --conf topology.yaml --venv self --logdir `pwd`
+petrel submit --config topology.yaml --venv self --logdir `pwd`

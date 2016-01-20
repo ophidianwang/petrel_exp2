@@ -1,1 +1,1 @@
-petrel submit --conf topology.yaml petrel_exp2
+petrel submit --config topology.yaml petrel_exp2

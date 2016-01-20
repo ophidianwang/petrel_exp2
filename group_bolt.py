@@ -5,6 +5,7 @@ Created on Tue Jan 05 11:07:42 2016
 @author: Jonathan Wang
 """
 
+import time
 import logging
 from collections import defaultdict
 
@@ -27,6 +28,7 @@ class GroupBolt(BasicBolt):
         self.total_uplink = defaultdict(int)
         self.total_downlink = defaultdict(int)
         self.total_records = defaultdict(list)
+        self.counter = 0
 
     @classmethod
     def declareOutputFields(self):
@@ -42,7 +44,7 @@ class GroupBolt(BasicBolt):
         """
         if tup.is_tick_tuple():
             log.debug("tuple is tick")
-            self.toNextBolt()
+            # self.toNextBolt()
         else:
             # log.debug("handling record: %s", tup.values)
             try:
@@ -53,9 +55,12 @@ class GroupBolt(BasicBolt):
                 self.total_uplink[msisdn] += uplink
                 self.total_downlink[msisdn] += downlink
                 self.total_records[msisdn].append(record_time)
-                log.debug("%s", [msisdn, uplink, downlink, record_time])
+                log.warning("handling record #%s: %s at %s", self.counter, tup.values, time.time())
+                self.counter += 1
             except :
                 log.debug("transforming tup values failed: %s", tup)
+            if self.counter == 100000:
+                self.toNextBolt()
 
     def toNextBolt(self):
         """
@@ -66,7 +71,7 @@ class GroupBolt(BasicBolt):
             # see if we could pass list in storm tuple: False, emit members needs to be hashable
             # so ... merge list to str
             merged = ",".join(self.total_records[msisdn])
-            log.debug("%s", [msisdn, merged])
+            # log.debug("%s", [msisdn, merged])
             storm.emit([msisdn, self.total_uplink[msisdn], self.total_downlink[msisdn], merged])
 
         # clear accumulator

@@ -4,9 +4,9 @@ Created on Wed Jan 06 10:48:48 2016
 
 @author: Jonathan Wang
 """
+import time
 import logging
 from pymongo import MongoClient
-
 from petrel import storm
 from petrel.emitter import BasicBolt
 
@@ -22,7 +22,7 @@ class OutputBolt(BasicBolt):
 
     def __init__(self):
         """
-        assogn None to member
+        assign None to member
         """
         super(OutputBolt, self).__init__(script=__file__)
         self.conf = None
@@ -73,7 +73,8 @@ class OutputBolt(BasicBolt):
                    "records": tup.values[3].split(",")  # split str to list
                    }
             object_id = self.collection.insert_one(doc).inserted_id
-            log.debug("insert doc: %s, object_id: %s.", doc, object_id)
+            log.warning("insert doc: %s, object_id: %s, at %s.", doc, object_id, time.time())
+
 
     def getComponentConfiguration(self):
         """

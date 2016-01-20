@@ -1,12 +1,12 @@
 nimbus.host: "172.28.128.22"
 topology.workers: 3
 
-ExpSpout.initialize.hosts: "127.0.0.1:9092"
-ExpSpout.initialize.topics: "test"
+ExpSpout.initialize.hosts: '172.28.128.22:9092,172.28.128.23:9092,172.28.128.24:9092'
+ExpSpout.initialize.topics: "cep_storm"
 ExpSpout.initialize.consumer_group: "cep_group_1"
-ExpSpout.initialize.zookeeper: "127.0.0.1:2181"
+ExpSpout.initialize.zookeeper: '172.28.128.22:2181,172.28.128.23:2181,172.28.128.24:2181'
 ExpSpout.initialize.consumer_timeout_ms: 500
 OutputBolt.initialize.host: "172.28.128.22"
-OutputBolt.initialize.port: 27017
+OutputBolt.initialize.port: 40000
 OutputBolt.initialize.db: "cep_storm"
 OutputBolt.initialize.collection: "lte_pgw_exp"

@@ -44,7 +44,7 @@ class ExpSpout(Spout):
                                                          zookeeper_connect=str(conf["ExpSpout.initialize.zookeeper"]),
                                                          consumer_timeout_ms=int(conf[
                                                              "ExpSpout.initialize.consumer_timeout_ms"]),
-                                                         auto_commit_enable=True
+                                                         auto_commit_enable=False
                                                          )
         log.debug("ExpSpout initialize done")
 
@@ -66,17 +66,17 @@ class ExpSpout(Spout):
             log.debug("self.consumer is not ready yet.")
             return
 
-        log.debug("ExpSpout.nextTuple()")
-        time.sleep(3)  # prototype減速觀察
+        # log.debug("ExpSpout.nextTuple()")
+        # time.sleep(3)  # prototype減速觀察
         cursor = 0
         try:
             for message in self.consumer:
                 cursor += 1
                 if message is not None:
-                    log.debug("offset: %s \t value: %s", message.offset, message.value)
+                    log.warning("offset: %s \t value: %s \t at %s", message.offset, message.value, time.time())
                     storm.emit([message.value])
-                if cursor > 10000:  # prototype減量觀察
-                    break
+                # if cursor > 10000:  # prototype減量觀察
+                #    break
         except Exception as inst:
             log.debug("Exception Type: %s ; Args: %s", type(inst), inst.args)
 
