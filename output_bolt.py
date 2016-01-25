@@ -29,6 +29,7 @@ class OutputBolt(BasicBolt):
         self.client = None
         self.db = None
         self.collection = None
+        self.counter = 0
 
     def initialize(self, conf, context):
         """
@@ -66,14 +67,20 @@ class OutputBolt(BasicBolt):
             fields = ["msisdn", "total_uplink", "total_downlink", "records"]
             doc = dict(zip(fields, tup.values))
             """
-            log.debug("%s", tup.values)
+            # log.debug("%s", tup.values)
             doc = {"msisdn": tup.values[0],
                    "total_uplink": tup.values[1],
                    "total_downlink": tup.values[2],
                    "records": tup.values[3].split(",")  # split str to list
                    }
             object_id = self.collection.insert_one(doc).inserted_id
-            log.warning("insert doc: %s, object_id: %s, at %s.", doc, object_id, time.time())
+            # log.warning("insert doc: %s, object_id: %s, at %s.", doc, object_id, time.time())
+            if self.counter == 0:
+                log.warning("start process 1000000 records at {0} (timestamp)".format(time.time()))
+            self.counter += 1
+            if self.counter == 1000000:  # this won't work since more than on instance
+                log.warning("finish process 1000000 records at {0} (timestamp)".format(time.time()))
+
 
 
     def getComponentConfiguration(self):

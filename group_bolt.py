@@ -47,19 +47,21 @@ class GroupBolt(BasicBolt):
             # self.toNextBolt()
         else:
             # log.debug("handling record: %s", tup.values)
+            self.counter += 1
+            msisdn = tup.values[0]
+            record_time = tup.values[1]
             try:
-                msisdn = tup.values[0]
-                record_time = tup.values[1]
                 uplink = int(tup.values[2])
                 downlink = int(tup.values[3])
-                self.total_uplink[msisdn] += uplink
-                self.total_downlink[msisdn] += downlink
-                self.total_records[msisdn].append(record_time)
-                log.warning("handling record #%s: %s at %s", self.counter, tup.values, time.time())
-                self.counter += 1
             except :
-                log.debug("transforming tup values failed: %s", tup)
-            if self.counter == 100000:
+                log.error("transforming tup values failed: %s", tup)
+                return
+            self.total_uplink[msisdn] += uplink
+            self.total_downlink[msisdn] += downlink
+            self.total_records[msisdn].append(record_time)
+            # log.warning("handling record #%s: %s at %s", self.counter, tup.values, time.time())
+            if self.counter == 10000:
+                # log.warning("to next bolt at {0} (timestamp)".format(time.time()))
                 self.toNextBolt()
 
     def toNextBolt(self):
@@ -78,6 +80,7 @@ class GroupBolt(BasicBolt):
         self.total_uplink.clear()
         self.total_downlink.clear()
         self.total_records.clear()
+        self.counter = 0
     
     def getComponentConfiguration(self):
         """

@@ -7,11 +7,39 @@ Created on Tue Jan 05 11:07:12 2016
 
 import time
 import logging
+from threading import Thread
 from pykafka import KafkaClient
 from petrel import storm
 from petrel.emitter import Spout
 
 log = logging.getLogger('ExpSpout')  # set logger
+
+
+class EmitThread(Thread):
+    """
+    async emit
+    """
+
+    def __init__(self, threadName):
+        super(EmitThread, self).__init__(name=threadName)
+        self.messages = []
+        self.counter = 0
+
+    def append(self, message):
+        self.messages.append(message)
+
+    def run(self):
+        while True:
+            if len(self.messages) != 0:
+                # log.warning(self.messages.pop(0))
+                storm.emit([self.messages.pop(0)])
+                self.counter += 1
+                if self.counter % 10000 == 0:
+                    log.warning("#{0}".format(self.counter))
+                if self.counter == 1000000:  # mark time
+                    log.warning("emit process 1000000 records at {0} (timestamp)".format(time.time()))
+            else:
+                time.sleep(0.01)
 
 
 class ExpSpout(Spout):
@@ -28,6 +56,8 @@ class ExpSpout(Spout):
         self.client = None
         self.topic = None
         self.consumer = None
+        self.counter = 0
+        self.emit_thread = None
 
     def initialize(self, conf, context):
         """
@@ -43,9 +73,13 @@ class ExpSpout(Spout):
         self.consumer = self.topic.get_balanced_consumer(consumer_group=str(conf["ExpSpout.initialize.consumer_group"]),
                                                          zookeeper_connect=str(conf["ExpSpout.initialize.zookeeper"]),
                                                          consumer_timeout_ms=int(conf[
-                                                             "ExpSpout.initialize.consumer_timeout_ms"]),
+                                                                                     "ExpSpout.initialize.consumer_timeout_ms"]),
                                                          auto_commit_enable=False
                                                          )
+
+        self.emit_thread = EmitThread("emit_thread")
+        self.emit_thread.start()
+
         log.debug("ExpSpout initialize done")
 
     @classmethod
@@ -66,17 +100,23 @@ class ExpSpout(Spout):
             log.debug("self.consumer is not ready yet.")
             return
 
+        if self.counter >= 1000000:
+            return
+
         # log.debug("ExpSpout.nextTuple()")
         # time.sleep(3)  # prototype減速觀察
-        cursor = 0
         try:
             for message in self.consumer:
-                cursor += 1
                 if message is not None:
-                    log.warning("offset: %s \t value: %s \t at %s", message.offset, message.value, time.time())
-                    storm.emit([message.value])
-                # if cursor > 10000:  # prototype減量觀察
-                #    break
+                    # log.warning("offset: %s \t value: %s \t at %s", message.offset, message.value, time.time())
+                    if self.counter == 0:
+                        log.warning("start process 1000000 records at {0} (timestamp)".format(time.time()))
+                    self.counter += 1
+                    self.emit_thread.append(message.value)
+                    # storm.emit([message.value])
+                if self.counter == 1000000:  # mark time
+                    log.warning("finish process 1000000 records at {0} (timestamp)".format(time.time()))
+                    # self.counter = 0
         except Exception as inst:
             log.debug("Exception Type: %s ; Args: %s", type(inst), inst.args)
 

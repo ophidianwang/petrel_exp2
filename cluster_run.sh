@@ -1,1 +1,2 @@
-petrel submit --config topology.yaml petrel_exp2
+cd $(dirname $0)
+petrel submit --config $(dirname $0)/topology.yaml petrel_exp2
