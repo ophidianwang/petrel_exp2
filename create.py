@@ -22,7 +22,7 @@ def create(builder):
     output_bolt_id = "output"
     
     builder.setSpout(spout_id, exp_spout.ExpSpout(), 1)  # 建立spout
-    builder.setBolt(split_bolt_id, split_bolt.SplitBolt(), 3) \
+    builder.setBolt(split_bolt_id, split_bolt.SplitBolt(), 1) \
         .shuffleGrouping(spout_id)  # 建立bolt, 設定tuple(亂數)
     builder.setBolt(group_bolt_id, group_bolt.GroupBolt(), 6) \
         .fieldsGrouping(split_bolt_id, ["msisdn"])  # 建立bolt, 設定tuple(Group by 欄位)
