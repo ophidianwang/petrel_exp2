@@ -6,6 +6,7 @@ Created on Tue Jan 05 11:07:12 2016
 """
 
 import time
+import socket
 import logging
 from threading import Thread
 from pykafka import KafkaClient
@@ -72,8 +73,7 @@ class ExpSpout(Spout):
         self.topic = self.client.topics[str(conf["ExpSpout.initialize.topics"])]
         self.consumer = self.topic.get_balanced_consumer(consumer_group=str(conf["ExpSpout.initialize.consumer_group"]),
                                                          zookeeper_connect=str(conf["ExpSpout.initialize.zookeeper"]),
-                                                         consumer_timeout_ms=int(conf[
-                                                                                     "ExpSpout.initialize.consumer_timeout_ms"]),
+                                                         consumer_timeout_ms=int(conf["ExpSpout.initialize.consumer_timeout_ms"]),
                                                          auto_commit_enable=False
                                                          )
 
@@ -110,12 +110,14 @@ class ExpSpout(Spout):
                 if message is not None:
                     # log.warning("offset: %s \t value: %s \t at %s", message.offset, message.value, time.time())
                     if self.counter == 0:
-                        log.warning("start process 1000000 records at {0} (timestamp)".format(time.time()))
+                        log.warning("start process 1000000 records at {0} (timestamp@{1})".format(time.time(),
+                                                                                                  socket.gethostname()))
                     self.counter += 1
                     self.emit_thread.append(message.value)
                     # storm.emit([message.value])
                 if self.counter == 1000000:  # mark time
-                    log.warning("finish process 1000000 records at {0} (timestamp)".format(time.time()))
+                    log.warning("finish process 1000000 records at {0} (timestamp@{1})".format(time.time(),
+                                                                                               socket.gethostname()))
                     # self.counter = 0
         except Exception as inst:
             log.debug("Exception Type: %s ; Args: %s", type(inst), inst.args)

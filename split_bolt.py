@@ -6,6 +6,7 @@ Created on Tue Jan 05 11:07:26 2016
 """
 
 import time
+import socket
 import logging
 from petrel import storm
 from petrel.emitter import BasicBolt
@@ -44,10 +45,12 @@ class SplitBolt(BasicBolt):
             if len(raw_row) == 47:
                 storm.emit([raw_row[6], raw_row[4], raw_row[17], raw_row[18]])
                 if self.counter == 0:
-                    log.warning("start process 1000000 records at {0} (timestamp)".format(time.time()))
+                    log.warning("start process 1000000 records at {0} (timestamp@{1})".format(time.time(),
+                                                                                              socket.gethostname()))
                 self.counter += 1
                 if self.counter == 1000000:  # this won't work since more than on instance
-                    log.warning("finish process 1000000 records at {0} (timestamp)".format(time.time()))
+                    log.warning("finish process 1000000 records at {0} (timestamp@{1})".format(time.time(),
+                                                                                               socket.gethostname()))
 
 
 def run():

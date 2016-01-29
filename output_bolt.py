@@ -5,6 +5,7 @@ Created on Wed Jan 06 10:48:48 2016
 @author: Jonathan Wang
 """
 import time
+import socket
 import logging
 from pymongo import MongoClient
 from petrel import storm
@@ -76,10 +77,12 @@ class OutputBolt(BasicBolt):
             object_id = self.collection.insert_one(doc).inserted_id
             # log.warning("insert doc: %s, object_id: %s, at %s.", doc, object_id, time.time())
             if self.counter == 0:
-                log.warning("start process 1000000 records at {0} (timestamp)".format(time.time()))
+                log.warning("start process 1000000 records at {0} (timestamp@{1})".format(time.time(),
+                                                                                          socket.gethostname()))
             self.counter += 1
             if self.counter == 1000000:  # this won't work since more than on instance
-                log.warning("finish process 1000000 records at {0} (timestamp)".format(time.time()))
+                log.warning("finish process 1000000 records at {0} (timestamp@{1})".format(time.time(),
+                                                                                           socket.gethostname()))
 
 
 
